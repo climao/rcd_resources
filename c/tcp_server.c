@@ -13,17 +13,17 @@
  *     3. Após a sequência descrita no passo anterior o programa termina.
  *
  * Geração do executável:
- *     Windows MSVC: Criar "C++ Empty Project"; 
- *                   Adicionar este ficheiro ao projeto; 
- *                   Alterar para "#define WIN"; 
+ *     Windows MSVC: Criar "C++ Empty Project";
+ *                   Adicionar este ficheiro ao projeto;
+ *                   Alterar para "#define WIN";
  *                   Selecionar "Build".
  *     Windows na linha de comandos:
- *                   Alterar para "#define WIN"; 
- *                   Compilar usando "cl tcp_server.c"; 
+ *                   Alterar para "#define WIN";
+ *                   Compilar usando "cl tcp_server.c";
  *                   Executar usando "tcp_server".
- *     UNIX/LINUX na linha de comandos: 
- *                   Alterar para "#define BSD"; 
- *                   Compilar usando "gcc -o tcp_server tcp_server.c"; 
+ *     UNIX/LINUX na linha de comandos:
+ *                   Alterar para "#define BSD";
+ *                   Compilar usando "gcc -o tcp_server tcp_server.c";
  *                   Executar usando "./tcp_server".
  *
  * Utilização das funções da interface de sockets no cliente e no servidor:
@@ -139,7 +139,7 @@ int main()
     listen(accept_s, 1);
 
     /*
-     * Passo 4: Aceitar uma ligação. A função accept() é bloqueante e retorna devolvendo 
+     * Passo 4: Aceitar uma ligação. A função accept() é bloqueante e retorna devolvendo
      * um socket, ligado ao cliente, e com o respetivo endereço (client_addr) preenchido.
      */
     printf("Aguarda ligação de um cliente ... \n");
@@ -160,6 +160,7 @@ int main()
     /*
      * Passo 5: Aguarda pedido do cliente no socket em que a ligação foi estabelecida.
      */
+    memset(in_buf, 0, sizeof(in_buf));
     retcode = recv(connect_s, in_buf, sizeof(in_buf), 0);
     if (retcode < 0) {
         printf("ERRO - recv() falhou.\n");
@@ -182,12 +183,6 @@ int main()
      * Passo 7: Fechar os sockets accept_s e connect_s
      */
 #ifdef WIN
-    retcode = closesocket(accept_s);
-    if (retcode < 0) {
-        printf("ERRO - closesocket() falhou.\n");
-        exit(-1);
-    }
-
     retcode = closesocket(connect_s);
     if (retcode < 0) {
         printf("ERROR - closesocket() falhou.\n");
@@ -195,14 +190,24 @@ int main()
     }
 #endif
 
+#ifdef WIN
+    retcode = closesocket(accept_s);
+    if (retcode < 0) {
+        printf("ERRO - closesocket() falhou.\n");
+        exit(-1);
+    }
+#endif
+
 #ifdef BSD
-    retcode = close(accept_s);
+    retcode = close(connect_s);
     if (retcode < 0) {
         printf("ERRO - close() falhou.\n");
         exit(-1);
     }
+#endif
 
-    retcode = close(connect_s);
+#ifdef BSD
+    retcode = close(accept_s);
     if (retcode < 0) {
         printf("ERRO - close() falhou.\n");
         exit(-1);
